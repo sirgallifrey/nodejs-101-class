@@ -1,6 +1,11 @@
 'use strict';
 
-const db = require('./db');
+const pg = require('pg');
+
+const db = new pg.Client({
+    user: 'postgres',
+    host: 'postgres'
+});
 
 db.connect(function(err) {
 

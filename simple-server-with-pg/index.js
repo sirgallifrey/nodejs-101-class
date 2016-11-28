@@ -1,6 +1,5 @@
 const http = require('http');
-const db = require('./db');
-const qs = require('querystring');
+const pg = require('pg');
 
 const hostname = '127.0.0.1';
 
@@ -20,9 +19,17 @@ const router = function (method, url) {
     if (method === 'GET' && url === '/items') {
 
         return function index (req, res) {
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'text/plain');
-            res.end('BAR!!!\n');
+
+            db.query('SELECT * FROM items', function (err, result) {
+
+                if (err) {
+                    throw err;
+                }
+
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'appplication/json');
+                res.end(JSON.stringify(result.rows));
+            });
         }
     }
 
@@ -47,10 +54,17 @@ const router = function (method, url) {
 
                 //lets parrse it to json to make it more easy to work with
                 body = JSON.parse(body);
+                //CREATE TABLE items(id SERIAL PRIMARY KEY, text VARCHAR(40) not null, complete BOOLEAN)
+                db.query('INSERT INTO items (text, complete) values ($1, $2)', [body.text, body.complete], function (err, result) {
 
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'text/plain');
-                res.end(JSON.stringify(body));
+                    if (err) {
+                        throw err;
+                    }
+
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'appplication/json');
+                    res.end(JSON.stringify(result));
+                });
             });
 
         }
@@ -73,10 +87,23 @@ const server = http.createServer((req, res) => {
     router(req.method, req.url)(req, res);
 });
 
-
-server.listen(port, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
+const db = new pg.Client({
+    user: 'postgres',
+    host: 'postgres'
 });
+
+db.connect(function(error) {
+
+    if (error) {
+
+        throw error;
+    }
+
+    server.listen(port, () => {
+        console.log(`Server running at http://${hostname}:${port}/`);
+    });
+});
+
 
 process.on('SIGTERM', function() {
     db.close();
