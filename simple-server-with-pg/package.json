@@ -1,0 +1,15 @@
+{
+  "name": "simple-server-with-pg",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "Adilson Schmitt Junior",
+  "license": "MIT",
+  "dependencies": {
+    "pg": "^6.1.0"
+  }
+}

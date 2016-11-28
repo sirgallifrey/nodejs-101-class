@@ -1,0 +1,19 @@
+version: '2'
+services:
+    node:
+        image: node:6.9.1
+        user: node
+        working_dir: /home/node
+        depends_on:
+            - postgres
+        links:
+            - postgres
+        volumes:
+            - .:/home/node
+        command: ['npm', 'start']
+        ports:
+            - 3000:3000
+    postgres:
+        image: postgres:9.6.1
+        ports:
+            - 5432:5432
